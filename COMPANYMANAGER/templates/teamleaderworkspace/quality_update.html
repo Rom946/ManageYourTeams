@@ -1,0 +1,26 @@
+{% extends "teamleaderworkspace/baseteamleader.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css">
+</head>
+    
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <legend class="border-bottom mb-4">Update NCR - {{object}}</legend>
+            {% crispy form %}
+        </form>
+    </div>
+
+
+
+
+
+{% endblock %}
+
+{% block script %}
+    {% load static %}
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+        <script type="text/javascript" src="{% static 'teamleaderworkspace/mywork/js/quality_update.js' %}"></script>
+{% endblock %}

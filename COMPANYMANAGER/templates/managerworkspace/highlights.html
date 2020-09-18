@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+{% extends 'managerworkspace/basehighlights.html' %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+
+        <div class="row m-3 border border-info bg-light">
+            <div class="col-6">
+            <h6>Global Facts:</h6>
+                <ul>
+                    <li>Global Performance: Unknown yet..</li>
+                    <li >Average Cost/Month: </li>
+                    <li >Average Man Hours/Month:</li>
+                    <li>Margins
+                        <ul>
+                            <li>Gross: R</li>
+                            <li>Net: R</li>
+                        </ul>
+                    </li>
+                    <li>Performance - Top 3
+                        <ul>
+                            <li>1/ </li>
+                            <li>2/ </li>
+                            <li>3/ </li>
+                        </ul>
+                    </li>
+                    <li>Most Wasted - Top 3
+                        <ul>
+                            <li>Nigel:
+                                <ul>
+                                    <li>1/ - Cost: R</li>
+                                    <li>2/ - Cost: R</li>
+                                    <li>3/ - Cost: R</li>
+                                </ul>
+                            </li>
+                            <li>Workshop:
+                                <ul>
+                                    <li>1/ - Cost: R</li>
+                                    <li>2/ - Cost: R</li>
+                                    <li>3/ - Cost: R</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        <div class="col-6">
+            <h6>Highlights Last Month:</h6>
+            <ul>
+                <li>Applied:
+                    <ul>
+                        <li>Nigel (references):
+                            <ul>
+                                <li>References Applied: references</li>
+                                <li>Cost:</li>
+                                <li>Sold:</li>
+                            </ul>
+                        </li>
+                        <li>Workshop (films):
+                            <ul>
+                                <li>References Created: references</li>
+                                <li>Packages Created: packages</li>
+                                <li>Film Reels Used: films</li>
+                                <li>Cost: R</li>
+                                <li>Sold: R</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>Wasted:
+                    <ul>
+                        <li>Nigel: references</li>
+                        <li>Workshop: films</li>
+                    </ul>
+                </li>
+               
+            </ul>
+        </div>
+    </div>
+
+    <div class="row m-3">
+        <div class="col-2">
+            <button id="btToggleDisplay" class="btn btn-primary"><i class="fa fa-table fa-lg" aria-hidden="true"></i> <i class="fa fa-arrows-h fa-lg" aria-hidden="true"></i> <i class="fa fa-id-card-o fa-lg" aria-hidden="true"></i></button>
+        </div>
+
+        <div class="col-10 bg-dark text-white">
+            Performance (coming): <span id="row-data"></span>
+        </div>
+    </div>
+    <div class="row m-3">
+        <div class="col">
+            <table id="register" class="table table-sm table-hover" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Position</th>
+                        <th>Days since joined</th>
+                        <th>Email</th>
+                        <th>Performance this month</th>
+                        <th>Applied/created this month</th>
+                        <th>Wasted this month</th>
+                        <th>Surface applied this month</th>
+                        <th>Cost this month</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/7089c43e/cloudflare-static/rocket-loader.min.js" data-cf-settings="884ab9523f96a46ee027fe0e-|49" defer=""></script></body>
+{% endblock %}

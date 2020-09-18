@@ -1,0 +1,100 @@
+ 
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static%}
+    
+    {% block content %}
+
+    <!-- Page Content -->
+    <div class="container">
+
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+        <h1 class="display-3 text-capitalize">Welcome {{ user.username }}</h1>
+
+      </header>
+
+      <!-- Page Features -->
+      <div class="row text-center">
+        <div class="col-lg-2 col-md-6 mb-4">
+
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+             {#  <!--<a href="{% url 'attendance' request.user.student.USN %}">--> #}
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/attendance2.jpg' %}" alt="">
+             <!--</a>-->
+              <div class="card-body">
+              <h4 class="card-title">My Work</h4>
+              <p class="card-text">Rewind data relative to the work done by my team today.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" role="button" href="{% url 'teamleaderworkspace:Mywork' %}">Set up today's data</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/product.png' %}" style="width: 90%; margin: auto;"   alt="">
+         
+              <div class="card-body" style="padding-top: 54px;">
+              <h4 class="card-title">Package Reception</h4>
+              <p class="card-text">You have refilled the stock from the office to Nigel?</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" role="button" href="{% url 'teamleaderworkspace:ReceiveDelivery' %}">Go to package reception</a>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-2 col-md-6 mb-4">
+
+        </div>
+
+
+      </div>
+      <!-- /.row -->  
+      <div class="row text-center">
+        <div class="col-lg-2 col-md-6 mb-4">
+
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+            <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/inspection.png' %}" style="width: 90%; margin: auto;"  alt="">
+            <div class="card-body" style = "padding-top: 54px;">
+              <h4 class="card-title">NCR and Quality</h4>
+              <p class="card-text">NCR against Gibela? PC09, PC10, PC11? You saw a default ? It's here</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" role="button" href="{% url 'teamleaderworkspace:quality' %}">Quality Management</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+            {#  <!--<a href="{% url 'marks_list' request.user.student.USN %}">--> #}
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/reports.png' %}" alt="">
+              <!--</a>-->
+              <div class="card-body">
+              <h4 class="card-title">Dashboard</h4>
+              <p class="card-text">View my work data. History of the work done, progress, etc..</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary disabled" role="button" href="#">In progress..</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-6 mb-4">
+
+        </div>
+      </div> <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+   
+
+
+
+
+{% endblock %}

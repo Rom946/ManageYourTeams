@@ -1,0 +1,805 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+</head>
+
+<script>
+/*
+//load chart resources  
+const Chart = window.chartjs
+const ChartDataLabels = window.chartjsplugindatalabels
+console.log(Chart)
+//unregister plugin globally
+Chart.plugins.unregister(ChartDataLabels);
+*/
+var backgroundColor = []
+
+
+
+
+
+
+//Init selects with select2 plugin
+function InitSelect2(){
+        var selects = document.querySelectorAll('select')
+        console.log('************SELECTS INIT**********')
+        //console.log(selects) 
+        
+    
+        //init select2 for selects
+        for(k=0;k<selects.length;k++){
+            //create empty option
+            let opt = document.createElement('option')
+            opt.setAttribute('disabled', "")
+            opt.setAttribute('value', 0)
+            opt = $(selects[k])[0].insertBefore(opt, $(selects[k])[0].firstChild)
+    
+            $(selects[k]).select2({
+            minimumResultsForSearch: -1,
+            placeholder: function() {
+                $(this).data('placeholder');
+            },
+            allowClear: true,
+            width: '100%',
+            tags: false,
+            tokenSeparators: [',', ' '],
+            });
+            $('.select2-search__field').attr('style', 'width:300px!important;')
+        }
+    }
+
+//ajax init stock charts from API
+async function stockInit(Graph, endpoint, ctx, title, label_graph){
+    var label_unit = 'Unit(s)'
+    var type = "bar"
+    try{
+        const data = await $.ajax({
+            method: "GET",
+            url: endpoint,
+        })
+        var labels = []
+        var graph_data = []
+
+        //console.log(data)
+        //console.log(data.results)
+        for(i=0;i<data.results.length;i++){
+            try{
+                graph_data.push(data.results[i].stock[data.results[i].stock.length-1].qty)
+                try{
+                    labels.push(data.results[i].reference.name)
+                }
+                catch{
+                    labels.push(data.results[i].film.name)
+                }
+                backgroundColor.push(random_rgba())
+            }
+            catch(e){
+                console.log(e)
+            }
+        }
+        //console.log(labels)
+        //console.log(graph_data)
+        
+        setChart(Graph, ctx, type, graph_data, labels, title, label_graph, label_unit)
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+//ajax init waste charts from API
+async function wasteInit(Graph, endpoint, ctx, title, label_graph){
+    var label_unit = 'Unit(s)'
+    var type = "bar"
+    try{
+        const data = await $.ajax({
+            method: "GET",
+            url: endpoint,
+        })
+        var labels = []
+        var graph_data = []
+        var total_units = 0
+
+        //console.log(data)
+        //console.log(data.results)
+        for(i=0;i<data.results.length;i++){
+            try{
+                graph_data.push(data.results[i].qty)
+                total_units += data.results[i].qty
+                try{
+                    var locations = ''
+                    for(k=0; k < data.results[i].location.length; k++){
+                        if(locations == ''){
+                            locations+= `${data.results[i].location[k].name}`
+                        }
+                        else{
+                            locations+= ` - ${data.results[i].location[k].name}`
+                        }
+                    }
+                    if(locations === ''){
+                        locations = 'No locations'
+                    }
+
+                    job_waste = data.results[i].job_waste
+                    job = `${job_waste.train.name} - ${job_waste.car.name} - ${job_waste.part.name} - ${data.results[i].reference.name} - ${locations} - ${data.results[i].tech.name} - ${data.results[i].category.name}`
+                    labels.push(job)
+                }
+                catch(error){
+                    console.log(error)
+                    label = ` ${data.results[i].date_waste} - ${data.results[i].employee.user.username} - ${data.results[i].category.name} `
+                    labels.push(label)
+                    graph_data.push(data.results[i].qty)
+                    backgroundColor.push(random_rgba())
+                }
+                backgroundColor.push(random_rgba())
+            }
+            catch(e){
+                console.log(e)
+            }
+        }
+        //console.log(labels)
+        //console.log(graph_data)
+
+        if(title.toLowerCase().includes('workshop')){
+            $('#waste-workshop-number').html(`Total units wasted: ${total_units} units`)
+        }
+        else{
+            $('#waste-nigel-number').html(`Total units wasted: ${total_units} units`)
+        }
+        
+        setChart(Graph, ctx, type, graph_data, labels, title, label_graph, label_unit)
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+//ajax init waste costs charts from API
+async function wasteCostInit(Graph, endpoint, ctx, title, label_graph){
+    var label_unit = 'R'
+    var type = "bar"
+    try{
+        const data = await $.ajax({
+            method: "GET",
+            url: endpoint,
+        })
+        var labels = []
+        var graph_data = []
+        var total_cost = 0
+
+        //console.log(data)
+        //console.log(data.results)
+        for(i=0;i<data.results.length;i++){
+            try{
+                graph_data.push(data.results[i].qty * data.results[i].reference.cost)
+                total_cost += (data.results[i].qty * data.results[i].reference.cost)
+                try{
+                    var locations = ''
+                    for(k=0; k < data.results[i].location.length; k++){
+                        if(locations == ''){
+                            locations+= `${data.results[i].location[k].name}`
+                        }
+                        else{
+                            locations+= ` - ${data.results[i].location[k].name}`
+                        }
+                    }
+                    if(locations === ''){
+                        locations = 'No locations'
+                    }
+
+                    job_waste = data.results[i].job_waste
+                    job = `${job_waste.train.name} - ${job_waste.car.name} - ${job_waste.part.name} - ${data.results[i].reference.name} - ${locations} - ${data.results[i].tech.name} - ${data.results[i].category.name}`
+                    labels.push(job)
+                }
+                catch(error){
+                    console.log(error)
+                    label = ` ${data.results[i].date_waste} - ${data.results[i].reference.name} - ${data.results[i].employee.user.username} - ${data.results[i].category.name} `
+                    labels.push(label)
+                    backgroundColor.push(random_rgba())
+                }
+                backgroundColor.push(random_rgba())
+            }
+            catch(e){
+                console.log(e)
+            }
+        }
+        //console.log(labels)
+        //console.log(graph_data)
+
+        if(title.toLowerCase().includes('workshop')){
+            $('#waste-workshop-cost').html(`Total cost : ${Math.round(total_cost)} R`)
+        }
+        else{
+            $('#waste-nigel-cost').html(`Total cost : ${Math.round(total_cost)} R`)
+        }
+
+        setChart(Graph, ctx, type, graph_data, labels, title, label_graph, label_unit)
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+//INIT 
+$(document).ready( function () {
+    
+    var ctx_stock_nigel = document.getElementById('chart-stock-nigel').getContext("2d");
+    var ctx_stock_workshop = document.getElementById('chart-stock-workshop').getContext("2d");
+    var ctx_stock_film = document.getElementById('chart-stock-film').getContext("2d");
+    var ctx_waste_nigel = document.getElementById('chart-waste-nigel').getContext("2d");
+    var ctx_waste_nigel_cost = document.getElementById('chart-waste-nigel-costs').getContext("2d");
+    var ctx_waste_workshop = document.getElementById('chart-waste-workshop').getContext("2d");
+    var ctx_waste_workshop_cost = document.getElementById('chart-waste-workshop-costs').getContext("2d");
+
+    //async functions to init charts
+    stockInit('Graph_nigel', '../../api/v1/stockhistorynigel', ctx_stock_nigel, 'Stock Nigel', 'Units in stock')
+    stockInit('Graph_workshop', '../../api/v1/stockhistoryworkshop', ctx_stock_workshop, 'Stock Workshop', 'Units in stock')
+    stockInit('Graph_film', '../../api/v1/stockfilmhistory', ctx_stock_film, 'Stock Film', 'Units in stock')
+    
+    wasteInit('Graph_waste_nigel', '../../api/v1/wastenigel', ctx_waste_nigel, 'Waste Nigel', 'Units Wasted')
+    wasteInit('Graph_waste_workshop', '../../api/v1/wasteworkshop', ctx_waste_workshop, 'Waste Workshop', 'Units Wasted')
+
+    wasteCostInit('Graph_waste_nigel_costs', '../../api/v1/wastenigel', ctx_waste_nigel_cost, 'Cost Waste Nigel', 'Cost Units Wasted')
+    wasteCostInit('Graph_waste_workshop_costs', '../../api/v1/wasteworkshop', ctx_waste_workshop_cost, 'Cost Waste Workshop', 'Cost Units Wasted')
+
+   //init select2
+    InitSelect2()
+
+    
+
+});
+
+
+//API QUERIES 
+//queries for stocks
+function loadStock(event, endpoint) {
+    
+    var labels = []
+    var graph_data = []
+    var type='line'
+    //console.log($(event))
+    var item = $(event.target.selectedOptions[0]).attr('data-item')
+    var item_label = event.target.selectedOptions[0].label
+    //console.log(item)
+
+    endpoint += '?search='+item
+
+    var select_id = $(event.target).attr('id')
+    var graph_name = $(event.target).attr('data-graph')
+    //console.log(item_label)
+    var ctx = document.getElementById(`chart-${select_id}`)
+    var Graph = `Graph_${graph_name}`
+    
+    $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data){
+            labels = []
+            graph_data = []
+            //console.log(data)
+            //console.log(data.results)
+            for(i=0;i<data.results.length;i++){
+                    try{
+                        labels.push(data.results[i].date_record)
+                        graph_data.push(data.results[i].qty)
+                        backgroundColor.push(random_rgba())
+                    }
+                    catch{}
+                }
+            
+            
+            //console.log(labels)
+            //console.log(graph_data)
+            setChart(Graph, ctx, type, graph_data, labels, item_label, 'Units in stock', 'Units')
+        },
+        error: function(error_data){
+            console.log('error')
+            console.log(error_data)
+        }
+    })
+}
+
+//queries for wastes
+function loadWaste(model, event, endpoint) {
+    event.preventDefault()
+    var labels = []
+    var graph_data = []
+    var type = 'bar'
+    //console.log($(event))
+    var form = event.target
+    var select_item1 = $("select.select-item1 option:selected")
+    var select_item2 = $("select.select-item2 option:selected")
+
+    var item1 = $(form).find(select_item1).val()
+    var item1_label = $(form).find(select_item1).html()
+    var item2 = $(form).find(select_item2).val()
+    var item2_label = $(form).find(select_item2).html()
+
+    if(model === 'nigel'){
+        var select_item3 = $("select.select-item3 option:selected")
+        var select_item4 = $("select.select-item4 option:selected")
+        var select_item5 = $("select.select-item5 option:selected")
+
+        var item3 = $(form).find(select_item3).val()
+        var item3_label = $(form).find(select_item3).html()
+        var item4 = $(form).find(select_item4).val()
+        var item4_label = $(form).find(select_item4).html()
+        var item5 = $(form).find(select_item5).val()
+        var item5_label = $(form).find(select_item5).html()
+    }
+
+    //user selected a specific reference -- else endpoint to all references
+    if(item1 !== 'all'){
+        endpoint += `?search=${item1}`
+    }
+    
+
+    var form_id = $(event.target).attr('id')
+    var graph_name = $(event.target).attr('data-graph')
+    var ctx = document.getElementById(`chart-${form_id}`)
+    var ctx_cost = document.getElementById(`chart-${form_id}-costs`)
+    var Graph = `Graph_${graph_name}`
+    var Graph_cost = `Graph_${graph_name}_costs`
+    
+    //fetch data
+    $.ajax({
+        method: "GET",
+        url: endpoint,
+        success: function(data){
+            var labels = []
+            var graph_data = []
+            var graph_data_cost = []
+            //console.log(data)
+            //console.log(data.results)
+            for(i=0;i<data.results.length;i++){
+                    //nigel
+                    if(model=='nigel'){
+                        var locations = ''
+                        for(k=0; k < data.results[i].location.length; k++){
+                            if(locations == ''){
+                                locations+= `${data.results[i].location[k].name}`
+                            }
+                            else{
+                                locations+= ` - ${data.results[i].location[k].name}`
+                            }
+                        }
+                        if(locations === ''){
+                            locations = 'No location'
+                        }
+
+                        //user selected a specific train
+                        if(item2 !=='all'){
+                            if(data.results[i].job_waste.train.id == item2){
+                                job_waste = data.results[i].job_waste
+                                
+                                job = `${job_waste.train.name} - ${job_waste.car.name} - ${job_waste.part.name} - ${data.results[i].reference.name} - ${locations} -  ${data.results[i].tech.name} - ${data.results[i].category.name}`
+                                labels.push(job)
+                                graph_data.push(data.results[i].qty)
+                                graph_data_cost.push(data.results[i].qty * data.results[i].reference.cost)
+                                backgroundColor.push(random_rgba())
+                            }
+                        //all trains
+                        } else {
+                            job_waste = data.results[i].job_waste
+                            job = `${job_waste.train.name} - ${job_waste.car.name} - ${job_waste.part.name} - ${data.results[i].reference.name} - ${locations} - ${data.results[i].tech.name} - ${data.results[i].category.name}`
+                            labels.push(job)
+                            graph_data.push(data.results[i].qty)
+                            graph_data_cost.push(data.results[i].qty * data.results[i].reference.cost)
+                            backgroundColor.push(random_rgba())
+                        }
+
+                    }
+                    //workshop
+                    else{
+                        //user selected a specific category
+                        if(item2 !=='all'){
+                            if(data.results[i].category.id == item2){
+                                label = ` ${data.results[i].date_waste} - ${data.results[i].reference.name}  - ${data.results[i].employee.user.username} - ${data.results[i].category.name} `
+                                labels.push(label)
+                                graph_data.push(data.results[i].qty)
+                                graph_data_cost.push(data.results[i].qty * data.results[i].reference.cost)
+                                backgroundColor.push(random_rgba())
+                            }
+                            //all categories
+                        } else {
+                            label = ` ${data.results[i].date_waste} - ${data.results[i].reference.name}  - ${data.results[i].employee.user.username} - ${data.results[i].category.name} `
+                            labels.push(label)
+                            graph_data.push(data.results[i].qty)
+                            graph_data_cost.push(data.results[i].qty * data.results[i].reference.cost)
+                            backgroundColor.push(random_rgba())
+                        }
+                    
+                    }
+                }
+            
+            
+            
+            if(model ==='nigel'){
+                //console.log(`labels before filtering: ${labels}`)
+                //console.log(`category: ${item3_label}`)
+                var indexes_to_remove = []
+                //user selected a specific category
+                if(item3 !=='all'){
+                    for(i=0; i<labels.length; i++){
+                        //console.log(labels[i])
+                        if(!labels[i].includes(item3_label)){
+                            //console.log(`Storing index: ${i} for Removal of ${labels[i]} `)
+                            indexes_to_remove.push(i)
+                        }
+                    }
+                }
+                //user selected a specific tech
+                if(item4 !=='all'){
+                    //console.log(`tech: ${item4_label}`)
+                    for(i=0; i<labels.length; i++){
+                        if(!labels[i].includes(item4_label)){
+                            if(!indexes_to_remove.includes(i)){
+                                //console.log(`Storing index: ${i} for Removal of ${labels[i]}`)
+                                indexes_to_remove.push(i)
+                            }
+                        }
+                    }
+                } 
+                //user selected a specific location
+                if(item5 !=='all'){
+                    console.log(`location: ${item5_label}`)
+                    for(i=0; i<labels.length; i++){
+                        
+                        if(!exactMatchStr(labels[i], (' - '), item5_label)){
+                            if(!indexes_to_remove.includes(i)){
+                                console.log(`Storing index: ${i} for Removal of ${labels[i]}`)
+                                indexes_to_remove.push(i)
+                            }
+                        }
+                    }
+                } 
+                
+                
+                //sort the array ascending to prepare the array for removal
+                indexes_to_remove.sort((a,b)=>a-b)
+                console.log(`to remove: ${indexes_to_remove}. length: ${indexes_to_remove.length}`)
+                //removing indexes not containing tech or category
+                var removing_counter = 0
+                var actual_index = 0
+
+                for(i=0; i<indexes_to_remove.length; i++){
+                    //refresh the index
+                    actual_index = indexes_to_remove[i] - removing_counter
+                    //console.log(`Removing not matching element: ${labels[actual_index]} at index ${actual_index}`)
+                    
+                    labels.splice(actual_index, 1)
+                    graph_data.splice(actual_index, 1)
+                    graph_data_cost.splice(actual_index, 1)
+                    backgroundColor.splice(actual_index, 1)
+
+                    //increment removing counter to keep the list up to date according to deleted items
+                    removing_counter += 1
+                }
+            }
+
+            
+            console.log(labels)
+            console.log(graph_data)
+            console.log(graph_data_cost)
+            if(graph_data_cost.length > 10){
+                var type_cost = 'bar'
+            } else{
+                var type_cost = 'pie'
+            }
+            var total_cost = 0
+            var total_units = 0
+            for(i=0; i<graph_data_cost.length; i++){
+                total_cost += graph_data_cost[i]
+            }
+            for(i=0; i<graph_data.length; i++){
+                total_units += graph_data[i]
+            }
+            
+
+            console.log(`total cost : ${total_cost}`)
+            console.log(`total units : ${total_units}`)
+
+            if(model === 'nigel'){
+                title_graph_units = `${item4_label} - ${item3_label} - ${item1_label} - ${item2_label} -  ${item5_label} - Total unit wasted: ${total_units} Units`
+                title_graph_cost = `${item4_label} - ${item3_label} - ${item1_label} - ${item2_label} - ${item5_label} - Total cost: ${Math.round(total_cost)} R`    
+            }
+            else{
+                title_graph_units = `${item1_label} - ${item2_label} - Total unit wasted: ${total_units} Units`
+                title_graph_cost = `${item1_label} - ${item2_label} -  Total cost: ${Math.round(total_cost)} R`    
+            }
+           
+            console.log(`Graph name: ${graph_name}`)
+            
+            if(model === 'workshop'){
+                $('#waste-workshop-cost').html(title_graph_cost)
+                $('#waste-workshop-number').html(title_graph_units)
+            }
+            else{
+                $('#waste-nigel-cost').html(title_graph_cost)
+                $('#waste-nigel-number').html(title_graph_units)
+            }
+
+            setChart(Graph, ctx, type, graph_data, labels, title_graph_units, 'Units wasted', 'Units')
+            setChart(Graph_cost, ctx_cost, type_cost, graph_data_cost, labels, title_graph_cost, 'Cost Units wasted', 'R')
+        },
+        error: function(error_data){
+            console.log('error')
+            console.log(error_data)
+        }
+    })
+}
+
+
+
+
+//setup chart
+function setChart(Graph, ctx, type, graph_data, labels, title, label_graph, label_unit){
+    
+  
+    var GraphOpt = {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }],
+            xAxes: [{
+                display: false //this will remove all the x-axis grid lines
+            }]
+        },
+        title: {
+            display:true,
+            text: title,
+        },
+        tooltips: {
+            callbacks: {
+                label: (item) => `${item.yLabel} ${label_unit}`,
+            }
+        },
+        plugins : {
+            datalabels: {
+                display: false,
+                formatter: (item) =>  item + ' ' + label_unit, 
+            }
+        },
+    }
+
+
+    //graph config
+    var Graph_config = {
+        type: type,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label_graph,
+                data: graph_data,
+                backgroundColor: backgroundColor,
+                borderColor: backgroundColor,
+                borderWidth: 1
+            }]
+        },
+        options: GraphOpt,
+    }
+
+    /*
+    if(type==='pie'){
+        GraphOpt['plugins'] = {
+            datalabels: {
+                display: false,
+                formatter: (item) => {
+                    return item + ' ' + label_unit;
+                }
+
+            }
+        }
+    }
+    else{
+        GraphOpt['tooltips'] = {
+            
+        }
+    }
+    */
+
+    //create a new graph if graph doesn't exist (init)
+    //console.log(typeof window[Graph])
+    if(typeof window[Graph] === "undefined") {
+        window[Graph] = new Chart(ctx, Graph_config);
+        window[Graph].resize()
+        //console.log(typeof window[Graph])
+    //update if graph exist
+    }else{
+        console.log('Graph Update')
+        //updating with new chart data
+        window[Graph].config=Graph_config;
+        window[Graph].title=title;
+        //redraw the chart
+        window[Graph].update();
+    }
+    
+}
+
+
+//randomize rgba for graph color
+function random_rgba() {
+    var o = Math.round, r = Math.random, s = 255;
+    return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + r().toFixed(1) + ')';
+}
+
+function exactMatchStr(str, separator, strToMatch){
+    if(str === ""||typeof str === 'undefined' || str === "No location"){
+        return false
+    }
+    else{
+        arr = str.split(separator)
+        for(c=0; c<arr.length; c++){
+            if(arr[c].trim() === strToMatch.trim()){
+                console.log(`Found ${strToMatch.trim()}! keeping ${str}...`)
+                return true;
+            }
+        }
+        return false
+    }
+    
+}
+
+
+
+</script>
+
+
+
+
+
+
+
+    <div class='col-sm-12' >
+        
+        <div class="col-sm-2" style="float: left;">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-stocknigel-tab" data-toggle="pill" href="#v-pills-stocknigel" role="tab" aria-controls="v-pills-stocknigel" aria-selected="true">Stock Nigel</a>
+                <a class="nav-link" id="v-pills-stockworkshop-tab" data-toggle="pill" href="#v-pills-stockworkshop" role="tab" aria-controls="v-pills-stockworkshop" aria-selected="false">Stock Workshop</a>
+                <a class="nav-link" id="v-pills-stocknigel-tab" data-toggle="pill" href="#v-pills-stockfilm" role="tab" aria-controls="v-pills-stockfilm" aria-selected="false">Stock Film</a>
+                <a class="nav-link" id="v-pills-margins-tab" data-toggle="pill" href="#v-pills-margins" role="tab" aria-controls="v-pills-margins" aria-selected="false">Margins - Coming</a>
+                <a class="nav-link" id="v-pills-performance-tab" data-toggle="pill" href="#v-pills-performance" role="tab" aria-controls="v-pills-perfomance" aria-selected="false">Performance - Coming</a>
+                <a class="nav-link" id="v-pills-wastesworkshop-tab" data-toggle="pill" href="#v-pills-wastesworkshop" role="tab" aria-controls="v-pills-wastesworkshop" aria-selected="false">Wastes Workshop</a>
+                <a class="nav-link" id="v-pills-wastesnigel-tab" data-toggle="pill" href="#v-pills-wastesnigel" role="tab" aria-controls="v-pills-wastesnigel" aria-selected="false">Wastes Nigel</a>
+            </div>
+        </div>
+
+        <div class="col-sm-10" style="float: right;">
+            <div class="tab-content" id="v-pills-tabContent">
+                <!--STOCK NIGEL-->
+                <div class="tab-pane fade show active" id="v-pills-stocknigel" role="tabpanel" aria-labelledby="v-pills-stocknigel-tab">
+                    <select name = "select" id = "stock-nigel" data-placeholder = "Select a reference" data-graph = 'nigel' onchange="loadStock(event, '../../api/v1/stocknigel')">
+                        {% for stock in stocks_nigel %}
+                            <option value = "{{stock.id}}" data-item="{{stock.reference.id}}">{{stock.reference}}</option>
+                        {% endfor %}
+                    </select>
+                    <canvas id="chart-stock-nigel" width="400" height="400"></canvas>
+                </div>
+
+                <!--STOCK WORKSHOP-->
+                <div class="tab-pane fade" id="v-pills-stockworkshop" role="tabpanel" aria-labelledby="v-pills-stockworkshop-tab">
+                    <select name = "select" id = "stock-workshop" data-placeholder = "Select a reference" data-graph = 'workshop' onchange="loadStock(event, '../../api/v1/stockworkshop')">
+                        {% for stock in stocks_workshop %}
+                            <option value = "{{stock.id}}" data-item="{{stock.reference.id}}">{{stock.reference}}</option>
+                        {% endfor %}
+                    </select>
+                    <canvas id="chart-stock-workshop" width="400" height="400"></canvas>
+                </div>
+
+                <!--STOCK FILM-->
+                <div class="tab-pane fade" id="v-pills-stockfilm" role="tabpanel" aria-labelledby="v-pills-stockfilm-tab">
+                    <select name = "select" id = "stock-film" data-placeholder = "Select a film" data-graph = 'film' onchange="loadStock(event, '../../api/v1/stockfilm')">
+                        {% for stock in stocks_film %}
+                            <option value = "{{stock.id}}" data-item="{{stock.film.id}}">{{stock.film}}</option>
+                        {% endfor %}
+                    </select>
+                    <canvas id="chart-stock-film" width="400" height="400"></canvas>
+                </div>
+
+
+                
+
+
+                <!--WASTE NIGEL-->
+                <div class="tab-pane fade" id="v-pills-wastesnigel" role="tabpanel" aria-labelledby="v-pills-wastesnigel-tab" >
+                    <div>
+                        <form onsubmit="loadWaste('nigel', event, '../../api/v1/wastenigel')" data-graph = 'waste_nigel' id='waste-nigel'>
+                            <select class = "select-item1" id = "select-reference-nigel" data-placeholder = "Select a reference">
+                                    <option value="all">All references</option>
+                                {% for stock in stocks_nigel %}
+                                    <option value = "{{stock.reference.id}}">{{stock.reference}}</option>
+                                {% endfor %}
+                            </select>
+                            <select class = "select-item2" id = "select-train-nigel" data-placeholder = "Select a train">
+                                    <option value="all">All trains</option>
+                                {% for train in trains %}
+                                    <option value = "{{train.id}}">{{train.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <select class = "select-item3" id = "select-category-nigel" data-placeholder = "Select a category">
+                                    <option value="all">All categories</option>
+                                {% for category in categories %}
+                                    <option value = "{{category.id}}">{{category.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <select class = "select-item4" id = "select-tech-nigel" data-placeholder = "Select a technician">
+                                    <option value="all">All technicians</option>
+                                {% for tech in techs %}
+                                    <option value = "{{tech.id}}">{{tech.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <select class = "select-item5" id = "select-location-nigel" data-placeholder = "Select a location">
+                                    <option value="all">All locations</option>
+                                    <option value="none">No location</option>
+                                {% for location in locations %}
+                                    <option value = "{{location.id}}">{{location.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <button class='btn btn-info'>Create Chart</button>
+                        </form>
+
+                        <div>
+    
+                            <div>
+                                <h1 id="waste-nigel-number"></h1>
+                                <canvas id="chart-waste-nigel" width="400" height="400"></canvas>
+                            </div>
+                            <div>
+                                <h1 id="waste-nigel-cost"></h1>
+                                <canvas id="chart-waste-nigel-costs" width="400" height="400"></canvas>
+                            </div>
+                        </div>
+                    
+                    </div> 
+    
+                </div>
+                    
+                <!--WASTE WORKSHOP-->
+                <div class="tab-pane fade" id="v-pills-wastesworkshop" role="tabpanel" aria-labelledby="v-pills-wastesworkshop-tab">
+                    
+                    <div>
+                        <form onsubmit="loadWaste('workshop', event, '../../api/v1/wasteworkshop')" data-graph = 'waste_workshop' id='waste-workshop'>
+                            <select class = "select-item1" id = "select-reference-workshop" data-placeholder = "Select a reference">
+                                    <option value="all">All references</option>
+                                {% for stock in stocks_workshop %}
+                                    <option value = "{{stock.reference.id}}">{{stock.reference}}</option>
+                                {% endfor %}
+                            </select>
+        
+                            <select class = "select-item2" id = "select-category-workshop" data-placeholder = "Select a category">
+                                    <option value="all">All categories</option>
+                                {% for category in categories %}
+                                    <option value = "{{category.id}}">{{category.name}}</option>
+                                {% endfor %}
+                            </select>
+                            <button class='btn btn-info'>Create Chart</button>
+                        </form>
+                    </div>
+                        
+                    <div>
+                        <div>
+                            <h1 id="waste-workshop-number"></h1>
+                            <canvas id="chart-waste-workshop" width="400" height="400"></canvas>
+                        </div>
+                        <div>
+                            <h1 id="waste-workshop-cost"></h1>
+                            <canvas id="chart-waste-workshop-costs" width="400" height="400"></canvas>
+                        </div>  
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg==" crossorigin="anonymous"></script>
+<!--plugin for charts labels-->
+<script type ="module" src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+{% endblock %}

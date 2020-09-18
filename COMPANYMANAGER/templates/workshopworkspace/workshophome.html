@@ -1,0 +1,74 @@
+ 
+{% extends 'workshopworkspace/baseworkshop.html' %}
+{% load static%}
+    
+    {% block content %}
+
+    <!-- Page Content -->
+    <div class="container">
+
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+        <h1 class="display-3 text-capitalize">Workshop<br>Welcome {{ user.username }}</h1>
+      </header>
+
+      <!-- Page Features -->
+      <div class="row text-center">
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+             {#  <!--<a href="{% url 'attendance' request.user.student.USN %}">--> #}
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/attendance2.jpg' %}" alt="">
+             <!--</a>-->
+              <div class="card-body">
+              <h4 class="card-title">My Work</h4>
+              <p class="card-text">Rewind data relative to the work done today.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary" role="button" href="{% url 'workshopworkspace:Mywork' %}">Set up today's data</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+             {#  <!--<a href="{% url 'marks_list' request.user.student.USN %}">--> #}
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/reports.png' %}" alt="">
+              <!--</a>-->
+              <div class="card-body">
+              <h4 class="card-title">Dashboard</h4>
+              <p class="card-text">View my work data. History of the work done, progress, etc..</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary disabled" role="button" href="#">In progress..</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card">
+              {# <!--<a href="{% url 'timetable' request.user.student.class_id_id %}">-->#}
+                <img class="card-img-top" src="{% static 'images/teamleaderworkspace/teamleaderhome/timetable.png' %}" alt="">
+              <!--</a>-->
+              <div class="card-body">
+              <h4 class="card-title">TimeTable</h4>
+              <p class="card-text">Access my timetable for the upcoming days. Check holidays availability.</p>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary disabled" role="button" href="{% url 'teamleaderworkspace:Timetable' %}">In progress..</a>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <!-- /.row -->
+
+    </div>
+    <!-- /.container -->
+   
+
+
+
+
+{% endblock %}

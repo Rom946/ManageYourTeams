@@ -1,0 +1,73 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css">
+
+
+
+<div class="col-lg-12" >
+    <div class = "card-header">
+
+        <h1 class="lead">Welcome to quality management space.</h1>
+        <hr class="my-4">
+        <p style="text-align: center;">You can indicate here if you encountered a situation related to the quality</p>
+    </div>   
+    <!---BODY------->
+    <div class="card-body">
+        <a href="{% url 'teamleaderworkspace:quality-create' %}">
+            <h5 class='text-info'><img class="rounded-circle article-img" src="{% static 'images/teamleaderworkspace/quality/add.png' %}">Add a new NCR</h5>
+        </a>
+        <p></p>
+        <h1 class="mb-3">NCR History</h1>
+        {% for ncr in quality %}
+            {% if ncr %}
+                <article class="media content-section">
+                    <img class="rounded-circle article-img" {% if ncr.progress != None %} src="{{ ncr.progress.image.url }}" {% else %} src="{% static 'images/teamleaderworkspace/quality/paid.png' %}" {% endif %} alt="">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <h1><a class="mr-2" href="{% url 'teamleaderworkspace:quality-detail' ncr.id %}">{{ ncr }}</a></h1>
+                            <small class="text-muted">Last update : {{ ncr.last_update|date:"F d, Y" }}</small>
+                        </div>
+                        <h2 class="article-title">Type: {{ ncr.situation }} {% if ncr.progress != None %} - Status: {{ncr.progress}} {% endif %}</h2>
+                    </div>
+                </article>
+            {% endif %}
+        {% endfor %}
+    
+    {% if is_paginated %}
+
+        {% if page_obj.has_previous %}
+            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+        {% endif %}
+    
+    {% endif %}
+    </div> 
+    
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="{% static 'teamleaderworkspace/mywork/js/quality.js' %}"></script>
+
+
+
+{% endblock %}
+
+
+

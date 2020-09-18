@@ -1,0 +1,27 @@
+from django.contrib import admin
+from .models import *
+
+# Register your models here.
+admin.site.register(Part)
+admin.site.register(Car)
+admin.site.register(Train)
+admin.site.register(Tech)
+admin.site.register(Reference)
+admin.site.register(WorkDone)
+admin.site.register(Job)
+admin.site.register(WorkByTech)
+admin.site.register(ReferenceApplied)
+admin.site.register(Waste)
+admin.site.register(WasteCategory)
+admin.site.register(Location)
+admin.site.register(Quantity)
+admin.site.register(Stock)
+admin.site.register(StockHistory)
+admin.site.register(FeedBack)
+admin.site.register(ProgressOnTrain)
+admin.site.register(ProgressOnCar)
+admin.site.register(ProgressOnPart)
+admin.site.register(TrackingCode)
+admin.site.register(Quality)
+admin.site.register(SituationNCR)
+admin.site.register(ProgressNCR)

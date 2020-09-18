@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static '/teamleaderworkspace/teamleaderhome/css/heroic-features.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/@coreui/coreui@3.0.0-rc.0/dist/css/coreui.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'general/main.css' %}">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css">
+
+
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js" integrity="sha384-L2pyEeut/H3mtgCBaUNw7KWzp5n9&#43;4pDQiExs933/5QfaTh8YStYFFkOzSoXjlTb" crossorigin="anonymous"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <script src="https://kit.fontawesome.com/4d2d2b1952.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    
+
+
+    {% if title %}
+        <title>GSDI Workspace - {{ title }}</title>
+    {% else %}
+        <title>GSDI Workspace - Home</title>
+    {% endif %}
+</head>
+<header class="site-header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+    <div class="container">
+      <a class="navbar-brand mr-4" href="{% url 'general:home' %}">GSDI South Africa</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="navbar-nav mr-auto">
+          {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'general:home' %}">Home</a>
+            
+            <a class="nav-item nav-link" href="http://rbaron.pythonanywhere.com/">About</a>
+            <a class="nav-item nav-link" href="{% url 'general:inventory' %}">Inventory</a>
+            {% if profile.position == 'TL' %}
+              <a class="nav-item nav-link" href="{% url 'teamleaderworkspace:teamleaderhome' %}">My Workspace</a>
+            {% elif profile.position == 'WS' %}
+              <a class="nav-item nav-link" href="{% url 'workshopworkspace:workshophome' %}">My Workspace</a>
+            {% endif %}
+            {% if user.is_staff %} 
+              <a class="nav-item nav-link" href="{% url 'teamleaderworkspace:teamleaderhome' %}">Team leader Workspace</a>
+              <a class="nav-item nav-link" href="{% url 'workshopworkspace:workshophome' %}">Workshop Workspace</a>
+              <a class="nav-item nav-link" href="{% url 'managerworkspace:dashboard' %}">My Dashboard</a>
+              <a class="nav-item nav-link" href="{% url 'register' %}">Register New User</a>
+            {% endif %}
+            <a class="nav-item nav-link" href="{% url 'logout' %}">Log Out</a>
+          {% else %}
+            <a class="nav-item nav-link" href="{% url 'login' %}">Log In</a>
+          {% endif %}
+        </div>
+        <!-- Navbar Right Side -->
+        <div class="navbar-nav">
+          {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'profile' %}">My Profile - {{ user.username }}</a>
+          {% endif %}
+         <!-- <a class="nav-item nav-link" href="#">Register</a>-->
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<body>
+    <main role="main" class="container">
+      <div class="row">
+        <div class="col-md-12">
+          {% if messages %}
+            {% for message in messages %}
+            <!--Set message type in function of the tag (success, error...)-->
+              <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+              </div>  
+              
+            {% endfor %}
+          {% endif %}
+          {% block content %}
+          
+          
+          {% endblock %}
+        </div>
+        
+      </div>
+    </main>
+
+    <!-- Optional JavaScript -->
+    
+   
+    {% block script %}
+          
+          
+    {% endblock %}
+</body>
+</html>

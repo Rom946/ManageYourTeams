@@ -1,0 +1,136 @@
+
+div .main
+{
+  line-height: 400px;
+  text-align:center; 
+  vertical-align:middle;
+}
+
+
+
+.form-style-5{
+	max-width: 500px;
+	padding: 10px 20px;
+  background: #fff;
+	margin: 10px auto;
+	padding: 20px;
+	border-radius: 8px;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  position:relative;
+  vertical-align: middle;
+  line-height: 14px; 
+}
+.form-style-5 legend {
+	font-size: 1.4em;
+	margin-bottom: 10px;
+}
+
+
+.form-style-5 input[type="text"]{
+	font-family: Georgia, "Times New Roman", Times, serif;
+	background: rgba(255,255,255,.1);
+	border: none;
+	border-radius: 4px;
+	font-size: 15px;
+	margin: 0;
+	outline: 0;
+	padding: 10px;
+	width: 100%;
+	box-sizing: border-box; 
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box; 
+	background-color: #e8eeef;
+	color:#8a97a0;
+	-webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	margin-bottom: 0px;
+}
+
+.form-style-5 input[type="number"],
+.form-style-5 input[type="search"]{
+  font-family: Georgia, "Times New Roman", Times, serif;
+	background: rgba(255,255,255,.1);
+	border: none;
+	border-radius: 4px;
+	font-size: 15px;
+	margin: 0;
+	outline: 0;
+	padding: 0px;
+	width: 100%;
+	box-sizing: border-box; 
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box; 
+	background-color: #e8eeef;
+	color:#8a97a0;
+	-webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+	margin-bottom: 0px!important;
+}
+
+.form-style-5 input[type="submit"],
+.form-style-5 input[type="button"]
+{
+	position: relative;
+	display: block;
+	color: #FFF;
+	margin: 0 auto;
+	background: #17a2b8;
+	font-size: 18px;
+	text-align: center;
+	font-style: normal;
+	width: 100%;
+	border: 1px solid #17a2b8;
+	border-width: 1px 1px 3px;
+	margin-bottom: 10px;
+}
+
+.form-style-5 .number {
+	background: #1abc9c;
+	color: #fff;
+	height: 30px;
+	width: 30px;
+	display: inline-block;
+	font-size: 0.8em;
+	margin-right: 4px;
+	line-height: 30px;
+  text-align: center;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+  border-radius: 15px 15px 15px 0px;
+  margin-bottom: 0px!important;
+} 
+.selectable:hover{
+	background-color: #17a2b8!important;
+	color:#fff!important;
+}
+
+#Continuebtn, #continue
+{
+  max-width: 1078px;
+	position: relative;
+	display: block; 
+	color: #FFF;
+	margin: 0 auto;
+  font-size: 18px;
+  padding-top: 10px;
+  text-align: center;
+  position: sticky;
+	font-style: normal;
+  width: 100%;
+  padding-bottom: 20px;
+	border: 1px solid #fff;
+	border-width: 1px 1px 3px;
+	margin-bottom: 0px!important;
+}
+
+
+
+button[name="move"]
+{
+    
+    size: 70%;
+}
+
+.selectable{
+  
+  line-height: 30px!important;
+}

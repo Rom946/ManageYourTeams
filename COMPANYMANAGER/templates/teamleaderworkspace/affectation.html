@@ -1,0 +1,103 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+
+<!-------style------->
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css">
+
+
+<style>
+html,body,h1,h2,h3,h4 {font-family:"Lato", sans-serif}
+.mySlides {display:none}
+.w3-tag, .fa {cursor:pointer}
+.w3-tag {height:15px;width:15px;padding:0;margin-top:6px}
+</style>
+
+
+<!-- Content -->
+<div class="row">
+  <div class="w3-content col-lg-8" style="max-width:1100px;margin-top:80px;margin-bottom:80px">
+
+    <div class="w3-panel">
+      <h1><b>AFFECTATION</b></h1>
+      <h3>Affect which teammate worked on which train, car, and part:</h3>
+    </div>
+
+    <form action="{{Affectation}}" id="affectation_form"  method="POST">
+      {% csrf_token %}
+      <!----------------form-------------------->
+      <div class="card-body">
+        {{affectation_form}}
+      </div>
+
+      <div id='form-error'>
+        <!---------Errors goes here------------>
+      </div>
+      <!---------------Buttons----------------->
+      <div class ='row' style="display: inline;" align="center">
+        <div style="float:right;">
+          <button class="btn btn-info" id="save" name="save" type="button">Save</button>
+        </div>
+        <div style="float:right;">
+          <button class="btn btn-info" id="continue" name="continue" type="button">Continue</button>
+        </div>
+      </div>
+    </form>
+    
+    <form hidden method="GET" action="{% url 'teamleaderworkspace:EmployeeReferences' %}">
+      <button class="btn btn-info" id="submit" name="submit" type="submit"></button>
+    </form>
+  </div>
+
+  <div class="w3-content col-lg-4" style="max-width:1100px;margin-top:80px;margin-bottom:80px">
+    <div class="w3-panel" id='donetoday'>
+      <h1><b>DONE TODAY</b></h1>
+      <table class="table" id = "recap-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Team</th>
+                <th scope="col">Job</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+                
+        </tbody>
+      </table> 
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="DeleteModalLabel">Delete ?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deletebtn" onclick="Delete(event);">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'teamleaderworkspace/mywork/js/affectation.js' %}"></script>
+
+
+
+
+
+
+{% endblock %} 

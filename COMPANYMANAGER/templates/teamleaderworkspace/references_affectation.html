@@ -1,0 +1,122 @@
+
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<!-------style------->
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+html,body,h1,h2,h3,h4 {font-family:"Lato", sans-serif}
+.mySlides {display:none}
+.w3-tag, .fa {cursor:pointer}
+.w3-tag {height:15px;width:15px;padding:0;margin-top:6px}
+</style>
+{% if not complete %}
+<div hidden id="{{tech.name}}" class="first_tech_id">
+
+</div>
+<div align="center">
+  <span>REFERENCES PER PERSON</span>
+</div>
+<div align="center">
+  <span id='completed'><strong>Completed: </strong>{{completed}}/{{total_tech}}</span>
+</div>
+<div align="center">
+  <span id='uncompleted'> <strong>Uncompleted: </strong>
+    {% for tech_single in team_list %}
+        {{tech_single}}, 
+    {% endfor %}
+  </span>
+</div>
+
+<!--Slideshow---> 
+<div class="w3-container">
+  <div class="w3-display-container mySlides">
+    
+    
+  </div>
+  <div class="w3-display-container mySlides">
+    <!--<img src="/w3images/workbench.jpg" style="width:100%">-->
+    
+  </div>
+  <div class="w3-display-container mySlides">
+    
+  </div>
+
+  <!---Slideshow next/previous buttons----> 
+  <div class="w3-container w3-dark-grey w3-padding w3-xlarge">
+    <div class="row col-md-12">
+      <div class="col-md-4" onclick="plusDivs(-1)" align='left'>
+        <i class="fa fa-arrow-circle-left w3-hover-text-teal" id="previous_tech" value="{{previous_tech}}">{{previous_tech}}</i>
+
+      </div>
+      <div class="col-md-4" id='current_tech'>
+        <span class="row col-md-12" align='center' onclick="currentDiv(1)"><img class="rounded-circle account-img" src="{{ profile.image.url }}" id='image'></span>
+        <span class="row col-md-12" align='center' value="{{tech.name}}" id="tech-name"><strong>{{tech.name}}</strong></span>
+      </div>
+      <div class="col-md-4" onclick="plusDivs(1)" align='right'>
+        <i class="fa fa-arrow-circle-right w3-hover-text-teal" id="next_tech" value="{{next_tech}}">{{next_tech}}</i>
+      </div> 
+    </div>
+  </div>
+</div>
+
+<!---------Handling forms--------->
+<div id="main">
+  {% for form in forms %}
+    <div class="row col-md-12 formsdiv" style = "border-style: solid;" id="formsdiv{{forloop.counter0}}">
+      <div class = "col-md-6 form1" align="left" >
+        <br>
+        
+        <form method="POST" class="form-group" id="form{{forloop.counter0}}" action="{% url 'teamleaderworkspace:EmployeeReferences' %}"  onsubmit="sendData(event);">
+          {% crispy form %}
+        </form>
+        <div class="error-block">
+          <!-- Here is the space for errors -->
+        </div>
+      </div>
+      
+      <div class = "col-md-6 form2" align="right">
+        <br>
+        
+    
+        <!--Here goes the form with ref infos-->
+      
+      </div>
+    </div>
+
+  {% endfor %}
+</div>
+<!-------SHOW VALID BUTTON ONLY WHEN EVERYTHING IS DONE-------->
+<div id='valid-form' hidden>
+  <form method='POST', class="form-group" action="{% url 'teamleaderworkspace:Feedback' %}" >
+    {% csrf_token %}  
+    <span class = "form-control" ><strong>All the data is complete for today.</strong></span>
+    <input hidden class="form-control" value="next_step">
+    <button class='btn btn-success' type='submit'>Continue to the next step</button>
+  </form> 
+</div>
+
+  <script src="{% static 'teamleaderworkspace/mywork/js/references.js' %}"></script>
+  <!------IF ALREADY COMPLETE---------->
+{% else %}
+
+<div id='valid-form'>
+  <form method='POST', class="form-group" action="{% url 'teamleaderworkspace:Feedback' %}" >
+    {% csrf_token %}  
+    <span class = "form-control" ><strong>All the data is complete for today.</strong></span>
+    <input hidden class="form-control" value="next_step">
+    <button class='btn btn-success' type='submit' value = "next_step">Continue to the next step</button>
+  </form> 
+</div>
+
+  <script src="{% static 'teamleaderworkspace/mywork/js/references.js' %}"></script>
+
+
+{% endif %} <!------END IF COMPLETE==FALSE----->
+
+{% endblock %} 

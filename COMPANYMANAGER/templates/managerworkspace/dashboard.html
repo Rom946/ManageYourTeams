@@ -1,0 +1,834 @@
+{% extends 'managerworkspace/basemanager.html' %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<head>
+    <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+</head>
+
+<!----SPINNER
+<div class="d-flex justify-content-center" id="spinner">
+    <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+</div>
+-->
+
+
+<div class="row">
+    
+    <div class="col-md-2">
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link active" id="v-pills-today-tab" data-toggle="pill" href="#v-pills-today" role="tab" aria-controls="v-pills-today" aria-selected="true">Today</a>
+            <a class="nav-link" id="v-pills-last7days-tab" data-toggle="pill" href="#v-pills-last7days" role="tab" aria-controls="v-pills-last7days" aria-selected="false">Last 7 days</a>
+            <a class="nav-link" id="v-pills-stocknigel-tab" data-toggle="pill" href="#v-pills-stocknigel" role="tab" aria-controls="v-pills-stocknigel" aria-selected="false">Stock Nigel</a>
+            <a class="nav-link" id="v-pills-stockworkshop-tab" data-toggle="pill" href="#v-pills-stockworkshop" role="tab" aria-controls="v-pills-stockworkshop" aria-selected="false">Stock Workshop</a>
+            <a class="nav-link" id="v-pills-stockfilm-tab" data-toggle="pill" href="#v-pills-stockfilm" role="tab" aria-controls="v-pills-stockfilm" aria-selected="false">Stock Film</a>
+            <a class="nav-link" id="v-pills-performance-tab" data-toggle="pill" href="#v-pills-performance" role="tab" aria-controls="v-pills-performance" aria-selected="false">Performance - Coming soon</a>
+            <a class="nav-link" id="v-pills-ncr-tab" data-toggle="pill" href="#v-pills-ncr" role="tab" aria-controls="v-pills-ncr" aria-selected="false">NCRs</a>
+            <a class="nav-link" href="{% url 'managerworkspace:charts' %}" role="tab" aria-selected="false">Charts</a>
+            <a class="nav-link" href="{% url 'managerworkspace:highlights' %}" role="tab" aria-selected="false">Highlights</a>
+        </div>
+        <ul class="nav nav-pills">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Progress</a>
+                <div class="dropdown-menu">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab-progress" role="tablist" aria-orientation="vertical">
+                        {% for progress in progresses %}
+                            <a class="nav-link " id="v-pills-progress{{forloop.counter0}}-tab" data-toggle="pill" href="#v-pills-progress{{forloop.counter0}}" role="tab" aria-controls="v-pills-progress{{forloop.counter0}}" aria-selected="true">{{progress.train}} - {{progress.progress_on_train}} %</a>
+                        {% endfor %}
+                    </div>
+            </li>
+        </ul>
+    
+    </div>
+    
+    <div class="tab-content col-md-10" id="v-pills-tabContent">
+        <div class="tab-pane fade show active" id="v-pills-today" role="tabpanel" aria-labelledby="v-pills-today-tab">
+            <!----TODAY TEAM LEADER DATA----->
+            <div class = "card" id = "cover">
+                <div class="card-header">
+                    <div class="success-block alert-success" align='center'>
+                        <!-------SUCCESS MESSAGES------>
+                    </div>
+                    <h1 class="card-title" align="center">
+                        Today's data 
+                        <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="About Today's Performance" data-content="Today's cost: {{overall_cost_today}} R &#13;&#10; References applied cost: {{ref_cost_today}} R &#13;&#10; Waste cost: {{waste_cost_today}} R &#13;&#10; The waste represents : {{percentage_waste_today}}% of today's references cost">Today's stats</button>
+                    </h1>  
+                </div>
+
+                <div class = "card-body">
+                    <table class="table" id = "highlight-today">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Applied today</th>   
+                                <th scope="col">Cost</th>
+                                <th scope="col">Wasted</th>
+                                <th scope="col">Cost waste</th>
+                                <th scope="col">Surface applied</th>
+                                <th scope="col">Action</th>
+
+                                
+                            </tr>
+                        </thead>
+                        
+                        {% if tech_data_today %}
+                            <tbody>
+                                <script>
+                                    var position = 0
+                                </script>
+                                {% for tech in tech_data_today %}
+                                    <tr id="today-{{forloop.counter0}}">
+                                        <th>{{forloop.counter}}</th>
+                                        <script>
+                                                position = "{{forloop.counter0}}"
+                                        </script>
+                                        {% for key, val in tech.items %}
+                                            {% if forloop.counter0 == 6 %}   
+                                                <td class="detailsbtn"><button type="button" class="btn btn-info"  data-toggle="modal" data-target="#DetailsModal" data-reference="{{val}}" data-date = "today">Details</button></td>
+                                                <script> 
+                                                    var id = "#today-" + position + " .btn"
+                                                    $(id).attr('data-position', position) 
+                                                    console.log($(id))
+                                                </script>
+                                            {% elif forloop.counter0 == 2 or forloop.counter0 == 4 %}
+                                                <td class="{{key}}">{{val}} R</td>                        
+                                            {% elif forloop.counter0 == 5 %}
+                                                <td class="{{key}}">{{val}} m2</td>                        
+                                            {% else %}
+                                                <td class="{{key}}">{{val}}</td>                        
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        {% endif %}
+                    </table>  
+                </div>
+            </div>
+
+            <div class = "card" >
+                <!------PACKAGES----->
+                <div class= "card-header">
+                    <h1 class="card-title" align="center">
+                        Packages done today 
+                    </h1>
+                </div>
+                
+                <div class="card-body">
+                    <table id = "packages-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Team Leader</th>   
+                                <th scope="col">Package Number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if workshop_jobs %}
+                                {% for job in workshop_jobs %}
+                                    {% for package in job.package.all %}
+                                        <tr id="package-{{forloop.counter0}}">
+                                            <th>{{package.id}}</th>
+                                            <td>{{package.team_leader}}</td> 
+                                            <td>{{package.code}}</td>                         
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+
+            <div class = "card" >
+                <!------ALL REFERENCES APPLIED BY EACH TECH----->
+                <div class= "card-header">
+                    <h1 class="card-title" align="center">
+                        REFERENCES DETAILS
+                    </h1>
+                </div>
+                
+                <div class="card-body">
+                    <table id = "references-details">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Technician</th>   
+                                <th scope="col">Job</th>
+                                <th scope="col">Reference</th>
+                                <th scope="col">Qty Applied</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Qty Wasted</th>
+                                <th scope="col">Waste category</th>
+                                <th scope="col">Waste location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if referencesapplied %}
+                                {% for applied in referencesapplied %}
+                                    <tr id="references-{{forloop.counter0}}">
+                                        <th>{{applied.id}}</th>
+                                        <td>{{applied.tech.name}}</td> 
+                                        <td>{{applied.job}}</td>                         
+                                        <td>{{applied.reference}}</td>                         
+                                        <td>{{applied.qty}}</td>                         
+                                        <td>{{applied.location}}</td>                         
+                                        <td>{{applied.wasted}}</td>                         
+                                        <td>{{applied.wasted_category}}</td>                         
+                                        <td>{{applied.wasted_location}}</td> 
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="v-pills-last7days" role="tabpanel" aria-labelledby="v-pills-last7days-tab">
+            <div class = "card">
+                <!-----LAST 7DAYS TEAMLEADER------>
+                <div class="card-header">
+                    <h1 class="card-title" align="center">
+                        Last 7 days data 
+                        <button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="About Last 7 days Performance" data-content="Last 7 days cost: {{overall_cost_week}} R &#13;&#10; References applied cost: {{ref_cost_week}} R &#13;&#10; Waste cost: {{waste_cost_week}} R &#13;&#10; The waste represents : {{percentage_waste_week}}% of last 7 days references cost">Last 7 days stats</button>
+                    </h1>
+                </div>
+
+                <div class = "card-body">
+                    <table class="table" id = "Week-stats">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Applied last 7 days</th>   
+                            <th scope="col">Cost</th>
+                            <th scope="col">Wasted</th>
+                            <th scope="col">Cost waste</th>
+                            <th scope="col">Surface applied</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    {% if tech_data_week %}
+                        <tbody>
+                            <script>
+                                var position = 0
+                            </script>
+                            {% for tech in tech_data_week %}
+                                <tr id="week-{{forloop.counter0}}">
+                                    <th>{{forloop.counter}}</th>
+                                    <script>
+                                        position = "{{forloop.counter0}}"
+                                    </script>
+                                    {% for key, val in tech.items %}
+                                        {% if forloop.counter0 == 6 %}   
+                                            <td class="detailsbtn"><button type="button" class="btn btn-info"  data-toggle="modal" data-target="#DetailsModal" data-reference="{{val}}" data-date = "week" >Details</button></td>
+                                            <script> 
+                                                var id = "#week" + '-' + position + " .btn"
+                                                $(id).attr('data-position', position) 
+                                                console.log($(id))
+                                            </script>
+                                        {% elif forloop.counter0 == 2 or forloop.counter0 == 4 %}
+                                            <td class="{{key}}">{{val}} R</td>                        
+                                        {% elif forloop.counter0 == 5 %}
+                                            <td class="{{key}}">{{val}} m2</td>                        
+                                        {% else %}
+                                            <td class="{{key}}">{{val}}</td>                        
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    {% endif %}
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade " id="v-pills-stocknigel" role="tabpanel" aria-labelledby="v-pills-stocknigel-tab" >
+            <div class="card">
+
+            <!----STOCKS NIGEL--->
+                <div class= "card-header">
+                    <h1 class="card-title" align="center">
+                        Stocks Nigel
+                    </h1>
+                </div>
+
+                <div class="card-body">
+                    <table id = "stock-nigel-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Reference</th>
+                                <th scope="col">Qty per train</th>
+                                <th scope="col">Stock qty</th>   
+                                <th scope="col">TC Car stock</th>
+                                <th scope="col">M Car stock</th>
+                                <th scope="col">Train stock</th>
+                                <th scope="col">Stock price</th>
+                                <th scope="col">Last update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks %}
+                                {% if stock.stock.all.exists %}
+                                    <tr id="stock-{{forloop.counter0}}">
+                                        <th>{{forloop.counter}}</th>
+                                        <td >{{stock.stock.last.reference}}</td> 
+                                        <td >{{stock.qty_per_train}}</td> 
+                                        {% if stock.stock.last.qty <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock.last.qty}}</td>         
+                                        {% elif stock.stock.last.qty < 10 and stock.stock.last.qty > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock.last.qty}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock.last.qty}}</td>        
+                                        {% endif %}  
+
+                                        {% if stock.stock_per_TC_car <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_TC_car}}</td>         
+                                        {% elif stock.stock_per_TC_car < 5 and stock.stock_per_TC_car > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_TC_car}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_TC_car}}</td>        
+                                        {% endif %}
+
+                                        {% if stock.stock_per_M_car <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_M_car}}</td>         
+                                        {% elif stock.stock_per_M_car < 5 and stock.stock_per_M_car > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_M_car}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_M_car}}</td>        
+                                        {% endif %}
+
+                                        {% if stock.stock_per_train <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_train}}</td>         
+                                        {% elif stock.stock_per_train < 5 and stock.stock_per_train > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_train}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_train}}</td>        
+                                        {% endif %}      
+                                        <td >{{stock.stock.last.price}} R</td>       
+                                        <td >{{stock.last_update}} R</td>       
+                                    </tr>
+                                
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="v-pills-stockworkshop" role="tabpanel" aria-labelledby="v-pills-stockworkshop-tab">
+            <div class="card">
+                <!----STOCKS WORKSHOP - REFERENCES--->
+                <div class= "card-header">
+                    <h1 class="card-title" align="center">
+                        Stocks Workshop - References
+                    </h1>
+                </div>
+
+                <div class="card-body">
+                    <table id = "stock-workshop-ref-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Reference</th>
+                                <th scope="col">Qty per train</th>
+                                <th scope="col">Stock qty</th>   
+                                <th scope="col">TC Car stock</th>
+                                <th scope="col">M Car stock</th>
+                                <th scope="col">Train stock</th>
+                                <th scope="col">Stock price</th>
+                                <th scope="col">Last update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks_w_references %}
+                                {% if stock.stock.all.exists %}
+                                    <tr id="stock-{{forloop.counter0}}">
+                                        <th>{{forloop.counter}}</th>
+                                        <td >{{stock.stock.last.reference}}</td> 
+                                        <td >{{stock.qty_per_train}}</td> 
+                                        {% if stock.stock.last.qty <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock.last.qty}}</td>         
+                                        {% elif stock.stock.last.qty < 10 and stock.stock.last.qty > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock.last.qty}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock.last.qty}}</td>        
+                                        {% endif %}  
+
+                                        {% if stock.stock_per_TC_car <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_TC_car}}</td>         
+                                        {% elif stock.stock_per_TC_car < 5 and stock.stock_per_TC_car > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_TC_car}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_TC_car}}</td>        
+                                        {% endif %}
+
+                                        {% if stock.stock_per_M_car <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_M_car}}</td>         
+                                        {% elif stock.stock_per_M_car < 5 and stock.stock_per_M_car > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_M_car}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_M_car}}</td>        
+                                        {% endif %}
+
+                                        {% if stock.stock_per_train <= 0 %}                             
+                                            <td  class = "alert-danger">{{stock.stock_per_train}}</td>         
+                                        {% elif stock.stock_per_train < 5 and stock.stock_per_train > 0 %} 
+                                            <td class = "alert-warning">{{stock.stock_per_train}}</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{stock.stock_per_train}}</td>        
+                                        {% endif %}      
+                                        <td >{{stock.stock.last.price}} R</td>       
+                                        <td >{{stock.last_update}}</td>       
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="v-pills-stockfilm" role="tabpanel" aria-labelledby="v-pills-stockfilm-tab">
+            
+            <div class="card">
+            
+                <!----STOCKS WORKSHOP - FILM--->
+                <div class= "card-header">
+                    <h1 class="card-title" align="center">
+                        Stocks Workshop - Film
+                    </h1>
+                </div>
+
+                <div class="card-body">
+                    <table id = "stock-workshop-film-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Film</th>
+                                <th scope="col">Qty per train</th>
+                                <th scope="col">Stock qty</th>   
+                                <th scope="col">Train in stock</th>
+                                <th scope="col">Stock price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks_film %}
+                                <tr id="stock-{{forloop.counter0}}">
+                                    <th>{{forloop.counter}}</th>
+                                    <td >{{stock.stock.all.last.film}}</td> 
+                                    <td >{{stock.qty_per_train}}</td> 
+                                    {% if stock.stock.all.last.qty <= 0 %}                             
+                                        <td  class = "alert-danger">{{stock.stock.all.last.qty}}</td>         
+                                    {% elif stock.stock.all.last.qty < 10 and stock.stock.all.last.qty > 0 %} 
+                                        <td class = "alert-warning">{{stock.stock.all.last.qty}}</td>        
+                                    {% else %} 
+                                        <td class = "alert-success">{{stock.stock.all.last.qty}}</td>        
+                                    {% endif %}
+                                    
+                                    {% if stock.stock_per_train <= 0 %}                             
+                                        <td  class = "alert-danger">{{stock.stock_per_train}}</td>         
+                                    {% elif stock.stock_per_train < 5 and stock.stock_per_train > 0 %} 
+                                        <td class = "alert-warning">{{stock.stock_per_train}}</td>        
+                                    {% else %} 
+                                        <td class = "alert-success">{{stock.stock_per_train}}</td>        
+                                    {% endif %}      
+                                        <td >{{stock.stock.all.last.price}} R</td>       
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="tab-pane fade" id="v-pills-performance" role="tabpanel" aria-labelledby="v-pills-performance-tab" hidden>
+            <div class = "card">
+                <!-----LAST 7DAYS TEAMLEADER------>
+                <div class="card-header">
+                    <h1 class="card-title " align="center">
+                        Performance 
+                    </h1>
+                </div>
+                
+                <div class="card-body">
+                    <form id="performance-form" method = "POST" onsubmit = "get_performance(e);">
+                        {% crispy performance_form %}
+                    </form>
+                </div>
+                
+
+                <div class = "card-body" hidden>
+
+                    <table class="table" id = "performance-nigel-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Applied</th>
+                                <th scope="col">Cost</th>
+                                <th scope="col">Wasted</th>
+                                <th scope="col">Cost waste</th>
+                                <th scope="col">Surface applied</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="">
+                                <th></th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>
+            
+
+                <div class = "card-body" hidden>
+                    <table class="table" id = "performance-workshop-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">#</th>
+                                <th scope="col">#</th>
+                                <th scope="col">#</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="2121">
+                                <th></th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+
+        <!---------------NCRs---------------->
+        <div class="tab-pane fade" id="v-pills-ncr" role="tabpanel" aria-labelledby="v-pills-ncr-tab" >
+            <div class = "card">
+                <div class="card-header">
+                    <h1 class="card-title" align="center">
+                        NCRs - Follow up 
+                    </h1>
+                </div>
+                
+
+                <div class="card-body" >
+                    <table id="ncr-stats">
+                        <thead>
+                            <tr>
+                                <th scope="col">NCR n°</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Situation</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Default</th>
+                                <th scope="col">Replacement</th>
+                                <th scope="col">Replaced by</th>
+                                <th scope="col">Responsible</th>
+                                <th scope="col">Date Replacement</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Cost</th>
+                                <th scope="col">Last update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ncr in ncrs %}
+                                <tr class="display responsive nowrap" width="100%" id="ncr-{{forloop.counter0}}">
+                                    <th>{% if ncr.ncr_number %}{{ncr.ncr_number}}{% else %}-{% endif %}</th>
+                                    <td>{{ncr.date_record}}</td>
+                                    <td>{{ncr.situation}}</td>
+                                    <td>{% if ncr.progress %}{{ncr.progress}}{% else %}Done{% endif %}</td>
+                                    <td>{{ncr.train}} - {{ncr.car}} - {{ncr.part}} - {{ncr.reference_to_replace}} - {{ncr.location}}</td>
+                                    <td>{{ncr.default_type}}</td>
+                                    <td>{% if ncr.replacement %}Done{% else %}Not replaced yet{% endif %}</td>
+                                    <td>{% if ncr.replacement %}
+                                            {% for tech in ncr.replaced_by.all %}
+                                                {{tech}}  
+                                            {% endfor %}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>{% if ncr.replacement %}{{ncr.responsible}}{% else %}-{% endif %}</td>
+                                    <td>{% if ncr.replacement %}{{ncr.date_replacement}}{% else %}-{% endif %}</td>
+                                    <td>{{ncr.description}}</td>
+                                    <td>{{ncr.reference_to_replace.cost}} R</td>
+                                    <td>{{ncr.last_update}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+        </div>
+
+
+
+            
+        {% for progress in progresses %}
+            <div class="tab-pane fade" id="v-pills-progress{{forloop.counter0}}" role="tabpanel" aria-labelledby="v-pills-{{forloop.counter0}}-tab">
+
+                <div class="card">
+                
+                    <!----PROGRESS ON CAR ---->
+                    <div class= "card-header">
+                        <h1 class="card-title" align="center">
+                            Progress for {{progress.train}} : {{progress.progress_on_train}} %
+                        </h1>
+                        <button id="{{progress.id}}" class='btn btn-info' onclick="recalculate_progress(event);">Recalculate progress</button>
+                       
+                    </div>
+
+                    <div class="card-body">
+                        <table class ="progress-stats" id = "table-progress-car{{forloop.counter0}}">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Car</th>
+                                    <th scope="col">Progress</th>   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for progress_on_car in progress.progress_on_car.all %}
+                                    <tr  id="progress-car-{{forloop.counter0}}">
+                                        <th>{{forloop.counter}}</th>
+                                        <td>{{progress_on_car.car}}</td>
+                                        {% if progress_on_car.progress_on_car <= 0 %}                             
+                                            <td  class = "alert-danger">{{progress_on_car.progress_on_car}} %</td>         
+                                        {% elif progress_on_car.progress_on_car < 100 and progress_on_car.progress_on_car > 0 %} 
+                                            <td class = "alert-warning">{{progress_on_car.progress_on_car}} %</td>        
+                                        {% else %} 
+                                            <td class = "alert-success">{{progress_on_car.progress_on_car}} %</td>        
+                                        {% endif %}     
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>  
+                    </div>
+                </div>
+
+                <!---PROGRESS PARTS-->
+                {% for progress_on_car in progress.progress_on_car.all %}
+                    <div class="card">
+                    
+                        <div class= "card-header">
+                            <h1 class="card-title" align="center">
+                                Progress {{progress_on_car.car}} :  {{progress_on_car.progress_on_car}} %
+                            </h1>
+                        </div>
+
+                        <div class="card-body">
+                            <table class ="progress-stats" id = "table-progress-part{{forloop.counter0}}">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Car</th>
+                                        <th scope="col">Progress</th>   
+                                        <th scope="col"></th>   
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for progress_on_part in progress_on_car.progress_on_part.all %}
+                                        <tr  id="progress-car-{{forloop.counter0}}">
+                                            <th>{{forloop.counter}}</th>
+                                            <td>{{progress_on_part.part}}</td>
+                                            {% if progress_on_part.progress_on_part <= 0 %}                             
+                                                <td  class = "alert-danger">{{progress_on_part.progress_on_part}} %</td>         
+                                            {% elif progress_on_part.progress_on_part < 100 and progress_on_part.progress_on_part > 0 %} 
+                                                <td class = "alert-warning">{{progress_on_part.progress_on_part}} %</td>        
+                                            {% else %} 
+                                                <td class = "alert-success">{{progress_on_part.progress_on_part}} %</td>        
+                                            {% endif %}     
+                                            <td>
+                                                <button type='button'  class="btn btn-info"  data-toggle="modal" data-target="#DetailsProgressModal" data-progress="{{progress_on_part.id}}" >Details</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>  
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-----------MODAL Details Done today------------>
+<div class="modal fade" id="DetailsModal" tabindex="-1" role="dialog" aria-labelledby="DetailsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="DetailsLabel">Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="message-block-edit" align="center">
+                <!--Here is the space for messages-->
+            </div>
+            <form id="reference-selection">
+                <select data-placeholder="Select a reference.." id="select-reference">
+                    <opt value="0"></opt>
+                </select>
+            </form>
+            
+            <form id="job-selection" hidden>
+                <select data-placeholder="Select a job.." id="select-job">
+                    <opt value="0"></opt>
+                </select>
+            </form>
+
+            <form hidden id="details-form">
+                <div class="form-group">
+                    <label for="tech-name" class="col-form-label">Done by: </label>
+                    <input type="text" class="form-control" id="tech-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="date-name" class="col-form-label">Date: </label>
+                    <input type="text" class="form-control" id="date-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="job-name" class="col-form-label">Job:</label>
+                    <input type="text" class="form-control" id="job-name" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="reference-name" class="col-form-label">Reference:</label>
+                    <input type="text" class="form-control" id="reference-name" disabled>
+                </div>
+                <div class="form-group">
+                  <label for="qty-name" class="col-form-label">Qty:</label>
+                  <input type="number" class="form-control" id="qty-name">
+                </div>
+                <div class="form-group">
+                    <label for="locations-select" class="col-form-label">Locations:</label>
+                    <select class="select-locations form-control" name="locations[]" data-placeholder="Select locations.." id="locations-select" multiple="multiple">
+                        <option value="placeholder"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="wastes-select" class="col-form-label">Waste Category:</label>
+                    <select class="select-wastes form-control" name="wastes[]" data-placeholder="Select waste.." id="wastes-select" multiple="multiple">
+                        <option value="placeholder"></option>
+                    </select>
+                </div>
+                <div class="form-group" hidden id="waste-qty-div">
+                    <label for="waste-qty-name" class="col-form-label">Waste Qty:</label>
+                    <input type="number" class="form-control" id="waste-qty-name">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+          <button hidden type="button" class="btn btn-primary" id="editbtn" onclick="Edit(event);">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-----------MODAL Details Progress------------>
+<div class="modal fade" id="DetailsProgressModal" tabindex="-1" role="dialog" aria-labelledby="DetailsProgressLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content" style="width : 800px;">
+        <div class="modal-header">
+          <h5 class="modal-title" id="DetailsProgressLabel">Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="message-block-edit" align="center">
+                <!--Here is the space for messages-->
+            </div>
+
+            <div class="card">
+                
+                <!----PROGRESS ON References ---->
+                <div class= "card-header">
+                    <h1 class="card-title progress-title" align="center">
+                        Progress for <!--Part-->
+                    </h1>
+                </div>
+
+                <div class="card-body">
+                    <table class ="progress-details" id = "table-progress-details">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Reference</th>
+                                <th scope="col">Surface covered</th>
+                                <th scope="col">Applied</th>     
+                                <th scope="col">Progress</th>   
+                            </tr>
+                        </thead>
+                        <tbody id="tr-progress-details">
+                            <tr >
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>
+            </div>
+
+            
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!--------
+  <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="DeleteModalLabel">Delete ?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="deletebtn" onclick="Delete(event);">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+---->
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+<script src="{% static 'managerworkspace/dashboard/js/dashboard.js' %}"></script>
+
+{% endblock %} 
+

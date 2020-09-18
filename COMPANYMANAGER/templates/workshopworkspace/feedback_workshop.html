@@ -1,0 +1,160 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load django_tables2 %}
+<head>
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
+    <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+</head>
+<div class="col-md-12">
+  <div class = "card col-md-8" style = "float: left;;">
+    <div class="card-header">
+        <div class="success-block alert-success" align='center'>
+            <!-------SUCCESS MESSAGES------>
+        </div>
+        <h1 class="card-title" align="center">Verify the informations you gave on the table below</h1>
+    </div>
+
+    <div class = "card-body">
+      <table class="table" id = "recap-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Creation date</th>
+                <th scope="col">Package Code</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody id="tbody">
+          <script> var last_position = 0; </script>
+          {% if packages %}
+            {% for package in packages %}
+                <tr id={{forloop.counter0}}>
+                    <th>{{package.id}}</th>
+                    <th>{{package.date_creation}}</th>
+                    <th class="code">{{package}}</th>
+                    
+                    <td id="edit-{{forloop.counter0}}"><button type="button" class="btn btn-info"  data-toggle="modal" data-target="#EditModal" data-package = "{{package.id}}"  data-position="{{forloop.counter0}}">Edit</button></td>
+                    <td id="delete-{{forloop.counter0}}"><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#DeleteModal" data-package="{{package.id}}" data-position="{{forloop.counter0}}">Delete</button></td>
+                </tr>
+                <script> var last_position = "{{forloop.counter0}}"; </script>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table> 
+    </div>
+  </div>
+  <div class = "card col-md-4" style="float: right;">
+    <h2 class="card-title" align="center">Did you finish any film reels today?</h2>
+    <!---film reel form-->
+    <form id = "film-reel-form" method = "POST" onsubmit="FinishFilmReel(event);">
+      {% crispy film_reel_form %} 
+    </form>
+  </div>
+</div>
+
+    <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="DeleteModalLabel">Delete ?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="deletebtn" onclick="Delete(event);">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="EditModalLabel">Edit </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <div class="message-block-edit" align="center">
+                  <!-- Here is the space for messages -->
+              </div>
+            <form>
+            <div class="form-group">
+              <label for="date-creation-name" class="col-form-label">Creation date:</label>
+              <input type="text" class="form-control" id="date-creation-name">
+            </div>
+              <div class="form-group">
+                <label for="reference-name" class="col-form-label">Reference:</label>
+                <input type="text" class="form-control" id="reference-name">
+              </div>
+              <div class="form-group">
+                  <label for="film-select" class="col-form-label">Film reels:</label>
+                  <select class="select-film form-control" multiple name="film[]" id="film-select">
+                  </select>
+              </div>
+              <div class="form-group">
+                <label for="qty-name" class="col-form-label">Qty:</label>
+                <input type="number" class="form-control" id="qty-name">
+              </div>
+              <div class="form-group">
+                <label for="cutter-select" class="col-form-label">Cutter:</label>
+                <select class="select-cutter form-control" name="cutter[]" placeholder="Select cutter.." id="cutter-select">
+                    <option disabled value="placeholder"></option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="packer-select" class="col-form-label">Packer:</label>
+                <select class="select-packer form-control" name="packer[]" placeholder="Select packer.." id="packer-select">
+                    <option disabled value="placeholder"></option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="waste-select" class="col-form-label">Waste:</label>
+                <select class="select-waste form-control" name="waste[]" placeholder="Select waste.." id="waste-select">
+                  <option disabled value="placeholder"></option>
+                </select>
+              </div>
+              <div class="form-group" hidden id = 'edit-waste-qty'>
+                <label for="waste-qty-name" class="col-form-label" >Waste qty:</label>
+                <input type="number" class="form-control" id="waste-qty-name">
+              </div>
+              <div class="form-group" hidden id='edit-waste-category'>
+                <label for="waste-category-select" class="col-form-label" >Waste Category:</label>
+                <select class="select-category form-control" name="waste-category[]" placeholder="Select a category.." id="waste-category-select">
+                    <option disabled value="placeholder"></option>
+                </select>
+              </div>             
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="editbtn" onclick="Edit(event);">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+ 
+    <div class = "card col-md-12">
+      <h2 class="card-title" align="center">Please, give a feedback on this day. Your opinion matter! Don't forget to rate your day (are you satisfied with today's work?)  </h2>
+        <!---FeedBackForm-->
+      <div class = "card-body">
+        {% crispy feedback %}
+      </div>
+    </div>
+
+
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<script src="{% static 'workshopworkspace/js/feedback_workshop.js' %}"></script>
+
+
+{% endblock %} 
+

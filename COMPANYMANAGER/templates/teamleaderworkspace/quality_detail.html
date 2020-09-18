@@ -1,0 +1,22 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+
+        <article class="media content-section">
+            <img class="rounded-circle article-img" {% if object.progress != None %} src="{{ object.progress.image.url }}" {% else %} src="{% static 'images/teamleaderworkspace/quality/paid.png' %}" {% endif %} alt="">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url 'teamleaderworkspace:quality' %}">{{object}}</a>
+                    <small class="text-muted">Last update : {{ object.last_update|date:"F d, Y" }}</small>
+                       <div>
+                            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'teamleaderworkspace:quality-update' object.id %}">Update</a>
+                            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'teamleaderworkspace:quality-delete' object.id %}">Delete</a>
+                        </div>
+                </div>                        
+                <h2 class="article-title">Type: {{ object.situation }} {% if object.progress != None %} - Status: {{object.progress}} {% endif %}</h2>
+                <p class="article-content">{{ object.description }}</p>
+            </div>
+        </article>
+
+
+{% endblock content%}

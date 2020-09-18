@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous" type="884ab9523f96a46ee027fe0e-text/javascript"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous" type="884ab9523f96a46ee027fe0e-text/javascript"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous" type="884ab9523f96a46ee027fe0e-text/javascript"></script>
+
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.16/sc-1.4.3/sl-1.2.4/datatables.min.css" />
+        <link rel="stylesheet" href="{% static 'managerworkspace/dashboard/js/highlights.css' %}">
+        <!---css navbar--->
+        <link rel="stylesheet" type="text/css" href="{% static 'general/main.css' %}">
+        
+        <script type="884ab9523f96a46ee027fe0e-text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.16/sc-1.4.3/sl-1.2.4/datatables.min.js"></script>
+
+
+
+        <script type="884ab9523f96a46ee027fe0e-text/javascript" src="{% static 'managerworkspace/dashboard/js/highlights.js' %}"></script>
+    </head>
+
+    {% if title %}
+        <title>GSDI Workspace - {{ title }}</title>
+    {% else %}
+        <title>GSDI Workspace - Home</title>
+    {% endif %}
+</head>
+<header class="site-header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+    <div class="container">
+      <a class="navbar-brand mr-4" href="{% url 'general:home' %}">GSDI South Africa</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="navbar-nav mr-auto">
+          {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'general:home' %}">Home</a>
+            
+            <a class="nav-item nav-link" href="http://rbaron.pythonanywhere.com/">About</a>
+            <a class="nav-item nav-link" href="{% url 'general:inventory' %}">Inventory</a>
+              {% if profile.position == 'TL' %}
+                  <a class="nav-item nav-link" href="{% url 'teamleaderworkspace:teamleaderhome' %}">My Workspace</a>
+              {% elif profile.position == 'WS' %}
+                  <a class="nav-item nav-link" href="{% url 'workshopworkspace:workshophome' %}">My Workspace</a>
+              {% endif %}
+              
+              {% if user.is_staff %} 
+              <a class="nav-item nav-link" href="{% url 'teamleaderworkspace:teamleaderhome' %}">Team leader Workspace</a>
+              <a class="nav-item nav-link" href="{% url 'workshopworkspace:workshophome' %}">Workshop Workspace</a>
+              <a class="nav-item nav-link" href="{% url 'managerworkspace:dashboard' %}">My Dashboard</a>
+              <a class="nav-item nav-link" href="{% url 'register' %}">Register New User</a>
+            {% endif %}
+            <a class="nav-item nav-link" href="{% url 'logout' %}">Log Out</a>
+          {% else %}
+            <a class="nav-item nav-link" href="{% url 'login' %}">Log In</a>
+          {% endif %}
+        </div>
+        <!-- Navbar Right Side -->
+        <div class="navbar-nav">
+          {% if user.is_authenticated %}
+            <a class="nav-item nav-link" href="{% url 'profile' %}">My Profile - {{ user.username }}</a>
+          {% endif %}
+         <!-- <a class="nav-item nav-link" href="#">Register</a>-->
+        </div>
+      </div>
+    </div>
+  </nav>
+</header> 
+<body>
+    <main role="main" class="container">
+      <div class="row">
+        <div class="col-md-12">
+          {% if messages %}
+            {% for message in messages %}
+            <!--Set message type in function of the tag (success, error...)-->
+              <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+              </div>  
+              
+            {% endfor %}
+          {% endif %}
+          {% block content %}
+          
+          
+          {% endblock %}
+        </div>
+        
+      </div>
+    </main>
+
+    <!-- Optional JavaScript -->
+    {% block js %}
+
+    {% endblock %}
+   
+</body>
+</html>

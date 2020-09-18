@@ -1,0 +1,21 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{% static 'images/inventory/train.png' %}" alt="">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{% url 'general:stock-nigel' %}">{{object}}</a>
+                    <small class="text-muted">{{ object.date_record|date:"F d, Y" }}</small>
+                       <div>
+                            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'general:stock-nigel-update' object.id %}">Update</a>
+                            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'general:stock-nigel-delete' object.id %}">Delete</a>
+                        </div>
+                </div>
+                <h2 class="article-title">Quantity Available: {{ object.qty }}</h2>
+            </div>
+        </article>
+
+
+{% endblock content%}

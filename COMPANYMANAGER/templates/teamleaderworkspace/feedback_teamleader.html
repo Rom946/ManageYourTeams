@@ -1,0 +1,138 @@
+{% extends 'teamleaderworkspace/baseteamleader.html' %}
+{% load static %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load django_tables2 %}
+<head>
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
+    <link href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet"/>
+</head>
+<script>
+    var locations = ''
+</script>
+<div class = "card">
+    <div class="card-header">
+        <div class="success-block alert-success" align='center'>
+            <!-------SUCCESS MESSAGES------>
+        </div>
+        <h1 class="card-title" align="center">Verify the informations you gave on the table below</h1>
+    </div>
+
+    <div class = "card-body">
+        <table class="table" id = "recap-table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Employee</th>
+                <th scope="col">Job</th>
+                <th scope="col">Reference</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Locations</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reference_applied in recap %}
+                <tr id={{forloop.counter0}}>
+                    <th>{{forloop.counter}}</th>
+                    <td>{{reference_applied.tech}}</td>
+                    <td>{{reference_applied.job}}</td>
+                    <td>{{reference_applied.reference}}</td>
+                    <td id="qty-{{forloop.counter0}}">{{reference_applied.qty}}</td>
+                    {% for location in reference_applied.locations.all %}
+                            <script>
+                                locations = locations + ' - ' + "{{location}}"
+                            </script>
+                    {% endfor %}
+                    <td id='locations-{{forloop.counter0}}'></td>
+                    <script>
+                        var locations_id = "#locations-" + "{{forloop.counter0}}"
+                        $(locations_id).val(locations)
+                        $(locations_id).html(locations)
+                        locations = ''
+                    </script>
+                    <td id="edit-{{forloop.counter0}}"><button type="button" class="btn btn-info"  data-toggle="modal" data-target="#EditModal" data-reference="{{reference_applied.reference}}" data-job="{{reference_applied.job}}" data-tech="{{reference_applied.tech}}" data-qty="{{reference_applied.qty}}" data-position="{{forloop.counter0}}">Edit</button></td>
+                    <td id="delete-{{forloop.counter0}}"><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#DeleteModal" data-reference="{{reference_applied.reference}}" data-job="{{reference_applied.job}}" data-tech="{{reference_applied.tech}}" data-qty="{{reference_applied.qty}}" data-position="{{forloop.counter0}}">Delete</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>  
+    </div>
+
+    <div class = "card-body">
+        <h2 class="card-title" align="center">Please, give a feedback on this day. Your opinion matter! Don't forget to rate your day (are you satisfied with today's work?)  </h2>
+        <!---FeedBackForm-->
+        {% crispy feedback %}
+    </div>
+</div>
+
+<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="EditModalLabel">Edit </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="message-block-edit" align="center">
+                <!-- Here is the space for messages -->
+            </div>
+          <form>
+            <div class="form-group">
+                <label for="tech-name" class="col-form-label">Done by: </label>
+                <input type="text" class="form-control" id="tech-name" disabled>
+            </div>
+            <div class="form-group">
+                <label for="job-name" class="col-form-label">Job:</label>
+                <input type="text" class="form-control" id="job-name" disabled>
+            </div>
+            <div class="form-group">
+                <label for="reference-name" class="col-form-label">Reference:</label>
+                <input type="text" class="form-control" id="reference-name" disabled>
+            </div>
+            <div class="form-group">
+              <label for="qty-name" class="col-form-label">Qty:</label>
+              <input type="number" class="form-control" id="qty-name">
+            </div>
+            <div class="form-group">
+                <label for="locations-select" class="col-form-label">Locations:</label>
+                <select class="select-locations form-control" name="locations[]" placeholder="Select locations.." id="locations-select" multiple="multiple">
+                    <option value="placeholder"></option>
+                </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="editbtn" onclick="Edit(event);">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="DeleteModalLabel">Delete ?</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cancelbtn" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="deletebtn" onclick="Delete(event);">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'teamleaderworkspace/mywork/js/feedback.js' %}"></script>
+
+{% endblock %} 
+
