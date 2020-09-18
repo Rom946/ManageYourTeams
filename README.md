@@ -1,8 +1,6 @@
 # ManageYourTeams
 Company website for teams management, stocks, production and performance
 
-Company website for teams management, stocks, production and performance
-
 Divided into 5 users categories: Manager, Technicians, Workshop workers, Clients, Admin
 
 Each user has its own workspace:
